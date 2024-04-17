@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, TextInput, Button } from "react-native";
-import { useState } from "react";
+import { useState, FC } from "react";
 import { gql } from "graphql-request";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import graphqlClient from "../graphqlClient";
@@ -18,15 +18,27 @@ const mutationDocument = gql`
   }
 `;
 
-const NewSetInput = ({ exerciseName }) => {
-  const [reps, setReps] = useState("");
-  const [weight, setWeight] = useState("");
+type NewSetInputProps = {
+  exerciseName: string;
+};
+
+type NewSet = {
+  username: string;
+  exercise: string;
+  reps: number;
+  weight?: number;
+};
+
+const NewSetInput: FC<NewSetInputProps> = ({ exerciseName }) => {
+  const [reps, setReps] = useState<string>("");
+  const [weight, setWeight] = useState<string>("");
 
   const { username } = useAuth();
   const queryClient = useQueryClient();
 
   const { mutate, error, isError, isPending } = useMutation({
-    mutationFn: (newSet) => graphqlClient.request(mutationDocument, { newSet }),
+    mutationFn: (newSet: NewSet) =>
+      graphqlClient.request(mutationDocument, { newSet }),
     onSuccess: () => {
       setReps("");
       setWeight("");
@@ -35,7 +47,7 @@ const NewSetInput = ({ exerciseName }) => {
   });
 
   const addSet = () => {
-    const newSet = {
+    const newSet: NewSet = {
       username,
       exercise: exerciseName,
       reps: Number.parseInt(reps),
@@ -45,8 +57,6 @@ const NewSetInput = ({ exerciseName }) => {
     }
     mutate(newSet);
   };
-
-  console.log(error);
 
   return (
     <View style={styles.container}>
