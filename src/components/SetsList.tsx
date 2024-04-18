@@ -1,4 +1,5 @@
 import { View, Text, ActivityIndicator, FlatList } from "react-native";
+import { FC } from "react";
 import { gql } from "graphql-request";
 import { useQuery } from "@tanstack/react-query";
 import graphqlClient from "../graphqlClient";
@@ -19,10 +20,28 @@ const setsQuery = gql`
   }
 `;
 
-const SetsList = ({ ListHeaderComponent, exerciseName }) => {
+interface Set {
+  _id: string;
+  exercise: string;
+  reps: number;
+  weight: number;
+}
+
+interface SetsData {
+  sets: {
+    documents: Set[];
+  };
+}
+
+interface SetsListProps {
+  ListHeaderComponent: React.ComponentType;
+  exerciseName: string;
+}
+
+const SetsList: FC<SetsListProps> = ({ ListHeaderComponent, exerciseName }) => {
   const { username } = useAuth();
   console.log("this is the :" + username);
-  const { data, isLoading } = useQuery({
+  const { data, isLoading } = useQuery<SetsData>({
     queryKey: ["sets", exerciseName],
     queryFn: () =>
       graphqlClient.request(setsQuery, { exercise: exerciseName, username }),
@@ -31,16 +50,22 @@ const SetsList = ({ ListHeaderComponent, exerciseName }) => {
   if (isLoading) {
     return <ActivityIndicator />;
   }
+  console.log("data", data);
+  if (!data?.sets?.documents?.length) {
+    return <Text>No data found</Text>;
+  }
+
+  const renderListHeaderComponent = () => (
+    <>
+      <ListHeaderComponent />
+      <ProgressGraph sets={data.sets.documents} />
+    </>
+  );
 
   return (
     <FlatList
       data={data.sets.documents}
-      ListHeaderComponent={() => (
-        <>
-          <ListHeaderComponent />
-          <ProgressGraph sets={data.sets.documents} />
-        </>
-      )}
+      ListHeaderComponent={renderListHeaderComponent}
       showsVerticalScrollIndicator={false}
       renderItem={({ item }) => <SetListItem set={item} />}
     />

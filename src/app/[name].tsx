@@ -26,11 +26,11 @@ type ExerciseDetailsScreenProps = {};
 export const ExerciseDetailsScreen: FC<ExerciseDetailsScreenProps> = () => {
   const { name } = useLocalSearchParams<{ name: string }>();
   const { data, isLoading, error } = useQuery<ExerciseData, Error>({
-    queryKey: ["exercises", name],
+    queryKey: ["exercises", name ?? ""],
     queryFn: () =>
       graphqlClient.request<ExerciseData, ExerciseQueryVariables>(
         exerciseQuery,
-        { name }
+        { name: name ?? "" }
       ),
   });
 

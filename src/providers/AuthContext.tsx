@@ -1,16 +1,17 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, ReactNode, FC } from "react";
 
 type AuthContextType = {
   username: string;
   setUsername: (username: string) => void;
 };
 
-const AuthContext = createContext<AuthContextType>({
-  username: "",
-  setUsername: (username) => {},
-});
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const AuthContextProvider = ({ children }) => {
+interface AuthContextProviderProps {
+  children: ReactNode;
+}
+
+const AuthContextProvider: FC<AuthContextProviderProps> = ({ children }) => {
   const [username, setUsername] = useState<string>("");
 
   return (
@@ -22,4 +23,10 @@ const AuthContextProvider = ({ children }) => {
 
 export default AuthContextProvider;
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = (): AuthContextType => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuth must be used within an AuthContextProvider");
+  }
+  return context;
+};
