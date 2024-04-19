@@ -50,21 +50,19 @@ const SetsList: FC<SetsListProps> = ({ ListHeaderComponent, exerciseName }) => {
   if (isLoading) {
     return <ActivityIndicator />;
   }
-  console.log("data", data);
-  if (!data?.sets?.documents?.length) {
-    return <Text>No data found</Text>;
-  }
 
   const renderListHeaderComponent = () => (
     <>
       <ListHeaderComponent />
-      <ProgressGraph sets={data.sets.documents} />
+      {data && data.sets.documents.length > 0 && (
+        <ProgressGraph sets={data.sets.documents} />
+      )}
     </>
   );
 
   return (
     <FlatList
-      data={data.sets.documents}
+      data={data?.sets.documents ?? []}
       ListHeaderComponent={renderListHeaderComponent}
       showsVerticalScrollIndicator={false}
       renderItem={({ item }) => <SetListItem set={item} />}
