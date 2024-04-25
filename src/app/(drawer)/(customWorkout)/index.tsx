@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { View, TextInput, Button, StyleSheet } from "react-native";
-
 import { Picker } from "@react-native-picker/picker";
 
 const CustomExerciseForm = () => {
@@ -11,7 +10,6 @@ const CustomExerciseForm = () => {
   const [repsGoal, setRepsGoal] = useState("");
 
   const handleCreateExercise = () => {
-    // Handle the creation of the exercise using the form data
     console.log("Exercise created:", {
       category,
       workoutName,
@@ -26,9 +24,10 @@ const CustomExerciseForm = () => {
       <Picker
         style={styles.picker}
         selectedValue={category}
-        onValueChange={(value) => setCategory(value)}
+        onValueChange={(itemValue) => setCategory(itemValue)}
+        mode="dropdown"
       >
-        <Picker.Item label="Select category" value="" />
+        <Picker.Item label="Select exercise category" value="" />
         <Picker.Item label="Category 1" value="category1" />
         <Picker.Item label="Category 2" value="category2" />
       </Picker>
@@ -37,20 +36,22 @@ const CustomExerciseForm = () => {
         style={styles.input}
         placeholder="Workout name"
         value={workoutName}
-        onChangeText={(text) => setWorkoutName(text)}
+        onChangeText={setWorkoutName}
       />
 
-      <View style={styles.buttonContainer}>
+      <View style={styles.switchContainer}>
         <Button
-          title={isWeighted ? "Weighted" : "No weights"}
+          title={isWeighted ? "Change to Unweighted" : "Change to Weighted"}
           onPress={() => setIsWeighted(!isWeighted)}
+          color="#007AFF"
         />
         {isWeighted && (
           <TextInput
-            style={styles.input}
+            style={[styles.input, { marginTop: 10 }]}
             placeholder="Weight (KG)"
             value={weight}
-            onChangeText={(text) => setWeight(text)}
+            keyboardType="numeric"
+            onChangeText={setWeight}
           />
         )}
       </View>
@@ -59,10 +60,15 @@ const CustomExerciseForm = () => {
         style={styles.input}
         placeholder="Reps goal"
         value={repsGoal}
-        onChangeText={(text) => setRepsGoal(text)}
+        keyboardType="numeric"
+        onChangeText={setRepsGoal}
       />
 
-      <Button title="Create Exercise" onPress={handleCreateExercise} />
+      <Button
+        title="Create Exercise"
+        onPress={handleCreateExercise}
+        color="#007AFF"
+      />
     </View>
   );
 };
@@ -70,25 +76,29 @@ const CustomExerciseForm = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 10,
+    padding: 20,
+    backgroundColor: "#F9F9F9",
   },
   picker: {
     height: 50,
-    backgroundColor: "#fff",
-    borderColor: "#ccc",
+    backgroundColor: "#FFF",
+    borderColor: "#E8E8E8",
     borderWidth: 1,
-    marginBottom: 10,
+    borderRadius: 5,
+    marginBottom: 20,
+    paddingLeft: 12,
   },
   input: {
-    height: 40,
-    borderColor: "#ccc",
+    height: 50,
+    borderColor: "#E8E8E8",
     borderWidth: 1,
-    backgroundColor: "#fff",
-    paddingLeft: 10,
-    marginBottom: 10,
+    borderRadius: 5,
+    backgroundColor: "#FFF",
+    paddingLeft: 15,
+    marginBottom: 20,
   },
-  buttonContainer: {
-    marginTop: 10,
+  switchContainer: {
+    marginBottom: 20,
   },
 });
 
