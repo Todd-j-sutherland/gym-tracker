@@ -4,11 +4,11 @@ import { useState, FC } from "react";
 import { Stack } from "expo-router";
 import { gql } from "graphql-request";
 import { useQuery } from "@tanstack/react-query";
-import { ExerciseData, ExerciseQueryVariables } from "../modals";
+import { ExerciseData, ExerciseQueryVariables } from "../../modals";
 
-import graphqlClient from "../graphqlClient";
-import NewSetInput from "../components/NewSetInput";
-import SetsList from "../components/SetsList";
+import graphqlClient from "../../graphqlClient";
+import NewSetInput from "../../components/NewSetInput";
+import SetsList from "../../components/SetsList";
 
 const exerciseQuery = gql`
   query exercises($name: String) {
