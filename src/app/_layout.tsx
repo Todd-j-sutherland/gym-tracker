@@ -17,7 +17,7 @@ export default function RootLayout() {
               options={{ title: "Exercises", headerShown: false }}
             /> */}
             <Stack.Screen
-              name="(workout)"
+              name="(drawer)"
               options={{ headerTitle: "", title: "", headerShown: false }}
             />
             <Stack.Screen

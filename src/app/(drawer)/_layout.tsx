@@ -6,14 +6,14 @@ const DrawerLayout = () => {
   return (
     // <GestureHandlerRootView style={{ flex: 1 }}>
     <Drawer>
-      {/* <Drawer.Screen
-          name="(workoutDetail)/[name]"
-          options={{
-            headerTitle: "Home",
-            drawerLabel: "Home",
-          }}
-          // redirect={authState?.authenticated === null}
-        /> */}
+      <Drawer.Screen
+        name="(customWorkout)"
+        options={{
+          headerTitle: "Create Custom Workout",
+          drawerLabel: "Create Custom Workout",
+        }}
+        // redirect={authState?.authenticated === null}
+      />
       <Drawer.Screen
         name="index"
         options={{

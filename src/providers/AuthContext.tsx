@@ -1,4 +1,12 @@
-import { createContext, useContext, useState, ReactNode, FC } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+  FC,
+} from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 type AuthContextType = {
   username: string;
@@ -13,6 +21,35 @@ interface AuthContextProviderProps {
 
 const AuthContextProvider: FC<AuthContextProviderProps> = ({ children }) => {
   const [username, setUsername] = useState<string>("");
+
+  useEffect(() => {
+    const loadStoredUsername = async () => {
+      try {
+        const storedUsername = await AsyncStorage.getItem("@username");
+        if (storedUsername) {
+          setUsername(storedUsername);
+        }
+      } catch (error) {
+        console.error("Failed to fetch username from storage:", error);
+      }
+    };
+
+    loadStoredUsername();
+  }, []);
+
+  useEffect(() => {
+    const updateStoredUsername = async () => {
+      try {
+        await AsyncStorage.setItem("@username", username);
+      } catch (error) {
+        console.error("Failed to save username:", error);
+      }
+    };
+
+    if (username) {
+      updateStoredUsername();
+    }
+  }, [username]);
 
   return (
     <AuthContext.Provider value={{ username, setUsername }}>
