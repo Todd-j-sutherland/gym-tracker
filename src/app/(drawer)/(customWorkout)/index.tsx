@@ -1,6 +1,36 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, TextInput, Button, StyleSheet } from "react-native";
+import { useQuery } from "@tanstack/react-query";
+import { gql } from "graphql-request";
 import { Picker } from "@react-native-picker/picker";
+import graphqlClient from "../../../graphqlClient";
+
+const customWorkoutQuery = gql`
+  query sets2() {
+    sets2() {
+      documents {
+        id
+        name
+        bodyPart
+        equipment
+        target
+        gifUrl
+      }
+    }
+  }
+`;
+
+type DocumentsEntrySets2 = {
+  id: String;
+  gifUrl: String;
+  bodyPart: String;
+  equipment: String;
+  name: String;
+  target: String;
+};
+type DocumentsEntrySets2Query = {
+  bodyPart: String;
+};
 
 const CustomExerciseForm = () => {
   const [category, setCategory] = useState("");
@@ -8,6 +38,22 @@ const CustomExerciseForm = () => {
   const [isWeighted, setIsWeighted] = useState(false);
   const [weight, setWeight] = useState("");
   const [repsGoal, setRepsGoal] = useState("");
+
+  const { data, isLoading, error } = useQuery<DocumentsEntrySets2, Error>({
+    queryKey: ["sets2"],
+    queryFn: () =>
+      graphqlClient.request<DocumentsEntrySets2>(customWorkoutQuery),
+  });
+
+  // console.log("Data:", data);
+  // const { data, isLoading, error } = useQuery(["sets2"], async () => {
+  //   const response = await request(endpoint, customWorkoutQuery);
+  //   return response.sets2.documents;
+  // });
+
+  useEffect(() => {
+    console.log("Data:", data);
+  }, [data]);
 
   const handleCreateExercise = () => {
     console.log("Exercise created:", {

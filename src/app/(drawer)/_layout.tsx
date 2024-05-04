@@ -9,8 +9,8 @@ const DrawerLayout = () => {
       <Drawer.Screen
         name="(customWorkout)"
         options={{
-          headerTitle: "Create Custom Workout",
-          drawerLabel: "Create Custom Workout",
+          headerTitle: "Create Custom Exercise",
+          drawerLabel: "Create Custom Exercise",
         }}
         // redirect={authState?.authenticated === null}
       />
