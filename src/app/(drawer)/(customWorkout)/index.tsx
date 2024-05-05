@@ -6,8 +6,8 @@ import { Picker } from "@react-native-picker/picker";
 import graphqlClient from "../../../graphqlClient";
 
 const customWorkoutQuery = gql`
-  query sets2($bodyPart: String!) {
-    sets2(bodyPart: $bodyPart) {
+  query sets2 {
+    sets2 {
       documents {
         id
         name
@@ -28,6 +28,10 @@ type DocumentsEntrySets2 = {
   name: String;
   target: String;
 };
+type DocumentsSets2 = {
+  documents: DocumentsEntrySets2[];
+};
+
 type DocumentsEntrySets2Query = {
   bodyPart: String;
 };
@@ -35,16 +39,14 @@ type DocumentsEntrySets2Query = {
 const CustomExerciseForm = () => {
   const [category, setCategory] = useState("");
   const [workoutName, setWorkoutName] = useState("");
-  const [isWeighted, setIsWeighted] = useState(false);
+  const [isWeighted, setIsWeighted] = useState(true);
   const [weight, setWeight] = useState("");
   const [repsGoal, setRepsGoal] = useState("");
+  const [uniqueBodyParts, setUniqueBodyParts] = useState<string[]>([]);
 
-  const { data, isLoading, error } = useQuery<DocumentsEntrySets2, Error>({
-    queryKey: ["sets2", "waist"],
-    queryFn: () =>
-      graphqlClient.request<DocumentsEntrySets2>(customWorkoutQuery, {
-        bodyPart: "waist",
-      }),
+  const { data, isLoading, error } = useQuery<DocumentsSets2, Error>({
+    queryKey: ["sets2"],
+    queryFn: () => graphqlClient.request<DocumentsSets2>(customWorkoutQuery),
   });
 
   // console.log("Data:", data);
@@ -54,7 +56,19 @@ const CustomExerciseForm = () => {
   // });
 
   useEffect(() => {
-    console.log("Data:", data);
+    if (data) {
+      console.log("Data:", data);
+      // const dataDocuments = data.documents as DocumentsSets2;
+
+      const bodyParts: string[] = data.sets2.documents.map(
+        (doc) => doc.bodyPart
+      );
+      const uniqueArray = [...new Set(bodyParts)];
+
+      console.log("Body parts:", uniqueArray);
+      // const bodyParts = new Set(data.documents.map((doc) => doc.bodyPart));
+      setUniqueBodyParts(uniqueArray);
+    }
   }, [data]);
 
   const handleCreateExercise = () => {
@@ -76,8 +90,9 @@ const CustomExerciseForm = () => {
         mode="dropdown"
       >
         <Picker.Item label="Select exercise category" value="" />
-        <Picker.Item label="Category 1" value="category1" />
-        <Picker.Item label="Category 2" value="category2" />
+        {uniqueBodyParts.map((bodyPart) => (
+          <Picker.Item key={bodyPart} label={bodyPart} value={bodyPart} />
+        ))}
       </Picker>
 
       <TextInput
