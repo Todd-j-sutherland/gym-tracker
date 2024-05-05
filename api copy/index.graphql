@@ -1,0 +1,11 @@
+schema
+  @sdl(
+    files: [
+      "exercises/index.graphql"
+      "mongodb/index.graphql"
+      "curl-01/index.graphql"
+      "exercise-list/index.graphql"
+    ]
+  ) {
+  query: Query
+}

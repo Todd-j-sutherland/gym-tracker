@@ -6,8 +6,8 @@ import { Picker } from "@react-native-picker/picker";
 import graphqlClient from "../../../graphqlClient";
 
 const customWorkoutQuery = gql`
-  query sets2() {
-    sets2() {
+  query sets2($bodyPart: String!) {
+    sets2(bodyPart: $bodyPart) {
       documents {
         id
         name
@@ -40,9 +40,11 @@ const CustomExerciseForm = () => {
   const [repsGoal, setRepsGoal] = useState("");
 
   const { data, isLoading, error } = useQuery<DocumentsEntrySets2, Error>({
-    queryKey: ["sets2"],
+    queryKey: ["sets2", "waist"],
     queryFn: () =>
-      graphqlClient.request<DocumentsEntrySets2>(customWorkoutQuery),
+      graphqlClient.request<DocumentsEntrySets2>(customWorkoutQuery, {
+        bodyPart: "waist",
+      }),
   });
 
   // console.log("Data:", data);
