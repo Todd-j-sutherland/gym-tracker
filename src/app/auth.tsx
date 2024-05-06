@@ -12,7 +12,8 @@ const AuthScreen = () => {
   };
 
   if (username) {
-    return <Redirect href={"/"} />;
+    // return <Redirect href={"/(drawer)/"} />;
+    return <Redirect href={"/(drawer)/index"} />;
   }
 
   return (

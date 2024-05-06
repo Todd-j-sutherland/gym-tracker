@@ -4,6 +4,8 @@ import { useQuery } from "@tanstack/react-query";
 import { gql } from "graphql-request";
 import { Picker } from "@react-native-picker/picker";
 import graphqlClient from "../../../graphqlClient";
+import { useAuth } from "../../../providers/AuthContext";
+import { Redirect, Stack } from "expo-router";
 
 const customWorkoutQuery = gql`
   query sets2 {
@@ -43,6 +45,7 @@ const CustomExerciseForm = () => {
   const [weight, setWeight] = useState("");
   const [repsGoal, setRepsGoal] = useState("");
   const [uniqueBodyParts, setUniqueBodyParts] = useState<string[]>([]);
+  const { username } = useAuth();
 
   const { data, isLoading, error } = useQuery<DocumentsSets2, Error>({
     queryKey: ["sets2"],
@@ -80,7 +83,9 @@ const CustomExerciseForm = () => {
       repsGoal,
     });
   };
-
+  if (!username) {
+    return <Redirect href={"/auth"} />;
+  }
   return (
     <View style={styles.container}>
       <Picker
