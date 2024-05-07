@@ -5,7 +5,7 @@ const DrawerLayout = () => {
     // <GestureHandlerRootView style={{ flex: 1 }}>
     <Stack>
       <Stack.Screen
-        name="index"
+        name="customWorkout"
         options={{
           // headerTitle: "Custom Workout",
           headerShown: false,

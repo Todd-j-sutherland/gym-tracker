@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { View, TextInput, Button, StyleSheet } from "react-native";
 import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { gql } from "graphql-request";
 import { Picker } from "@react-native-picker/picker";
 import graphqlClient from "../../../graphqlClient";
@@ -22,6 +23,19 @@ const customWorkoutQuery = gql`
   }
 `;
 
+const mutationDocument = gql`
+  mutation MyMutation($newSet: NewSet!) {
+    insertSet(
+      document: $newSet
+      dataSource: "Cluster0"
+      database: "workouts"
+      collection: "customWorkouts"
+    ) {
+      insertedId
+    }
+  }
+`;
+
 type DocumentsEntrySets2 = {
   id: String;
   gifUrl: String;
@@ -38,6 +52,15 @@ type DocumentsEntrySets2Query = {
   bodyPart: String;
 };
 
+type NewSet = {
+  name: string;
+  equipment: string;
+  weight: number;
+  reps: number;
+  isWeighted: boolean;
+  sets: number;
+};
+
 const CustomExerciseForm = () => {
   const [category, setCategory] = useState("");
   const [workoutName, setWorkoutName] = useState("");
@@ -45,11 +68,20 @@ const CustomExerciseForm = () => {
   const [weight, setWeight] = useState("");
   const [repsGoal, setRepsGoal] = useState("");
   const [uniqueBodyParts, setUniqueBodyParts] = useState<string[]>([]);
+  const [sets, setSets] = useState("");
   const { username } = useAuth();
 
   const { data, isLoading, error } = useQuery<DocumentsSets2, Error>({
     queryKey: ["sets2"],
     queryFn: () => graphqlClient.request<DocumentsSets2>(customWorkoutQuery),
+  });
+
+  const { mutate, isError, isPending } = useMutation({
+    mutationFn: (newSet: NewSet) =>
+      graphqlClient.request(mutationDocument, { newSet }),
+    onSuccess: () => {
+      // queryClient.invalidateQueries({ queryKey: ["sets", exerciseName] });
+    },
   });
 
   // console.log("Data:", data);
@@ -69,7 +101,7 @@ const CustomExerciseForm = () => {
       const uniqueArray = [...new Set(bodyParts)];
 
       console.log("Body parts:", uniqueArray);
-      // const bodyParts = new Set(data.documents.map((doc) => doc.bodyPart));
+
       setUniqueBodyParts(uniqueArray);
     }
   }, [data]);
@@ -82,10 +114,24 @@ const CustomExerciseForm = () => {
       weight,
       repsGoal,
     });
+    const name = workoutName;
+    const equipment = category;
+    const newSet = {
+      name,
+      equipment,
+      isWeighted,
+      weight,
+      repsGoal,
+      sets,
+    };
+
+    mutate(newSet);
   };
+
   if (!username) {
     return <Redirect href={"/auth"} />;
   }
+
   return (
     <View style={styles.container}>
       <Picker
@@ -94,7 +140,11 @@ const CustomExerciseForm = () => {
         onValueChange={(itemValue) => setCategory(itemValue)}
         mode="dropdown"
       >
-        <Picker.Item label="Select exercise category" value="" />
+        <Picker.Item
+          label="Select exercise category"
+          value=""
+          enabled={false}
+        />
         {uniqueBodyParts.map((bodyPart) => (
           <Picker.Item key={bodyPart} label={bodyPart} value={bodyPart} />
         ))}
@@ -126,10 +176,18 @@ const CustomExerciseForm = () => {
 
       <TextInput
         style={styles.input}
-        placeholder="Reps goal"
+        placeholder="Reps"
         value={repsGoal}
         keyboardType="numeric"
         onChangeText={setRepsGoal}
+      />
+
+      <TextInput
+        style={styles.input}
+        placeholder="sets"
+        value={sets}
+        keyboardType="numeric"
+        onChangeText={setSets}
       />
 
       <Button
