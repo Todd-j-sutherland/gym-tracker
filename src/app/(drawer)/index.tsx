@@ -14,24 +14,40 @@ import { Redirect, Stack } from "expo-router";
 import { useAuth } from "../../providers/AuthContext";
 import { useState } from "react";
 import { useDebounce } from "@uidotdev/usehooks";
-import { Exercise } from "../../modals";
+// import { Exercise } from "../../modals";
 
-type Page = {
-  exercises: Exercise[];
+// type Page = {
+//   exercises: Exercise[];
+// };
+
+// type QueryData = {
+//   pageParams: number[];
+//   pages: Page[];
+//   exercises: Exercise[];
+// };
+
+type DocumentsEntrySets2 = {
+  id: String;
+  _id: String;
+  equipment: String;
+  isWeighted: String;
+  name: String;
+  repsGoal: String;
+  weight: String;
 };
 
-type QueryData = {
-  pageParams: number[];
-  pages: Page[];
-  exercises: Exercise[];
+type DocumentsSets2 = {
+  documents: DocumentsEntrySets2[];
 };
 
 const exercisesQuery = gql`
-  query exercises($muscle: String, $name: String, $limit: Int) {
-    exercises(muscle: $muscle, name: $name, limit: $limit) {
-      name
-      muscle
-      equipment
+  query customWorkouts($limit: Int, $skip: Int, $name: String) {
+    customWorkouts(limit: $limit, skip: $skip, name: $name) {
+      documents {
+        id
+        name
+        equipment
+      }
     }
   }
 `;
@@ -41,15 +57,21 @@ export default function ExercisesScreen() {
   const debouncedSearchTerm = useDebounce(search.trim(), 1000);
 
   const { data, isLoading, error, fetchNextPage, isFetchingNextPage } =
-    useInfiniteQuery<QueryData, Error>({
-      queryKey: ["exercises", debouncedSearchTerm],
+    useInfiniteQuery<DocumentsSets2, Error>({
+      queryKey: ["customWorkouts", debouncedSearchTerm],
       queryFn: ({ pageParam }) =>
         client.request(exercisesQuery, {
-          limit: pageParam,
+          limit: 10,
+          skip: pageParam,
           name: debouncedSearchTerm,
         }),
       initialPageParam: 0,
-      getNextPageParam: (lastPage, pages) => pages.length * 10,
+      getNextPageParam: (lastPage, allPages) => {
+        if (lastPage.documents?.length === 10) {
+          return allPages?.length * 10;
+        }
+        return undefined;
+      },
     });
 
   const { username } = useAuth();
@@ -73,7 +95,7 @@ export default function ExercisesScreen() {
   if (error) {
     return <Text>Failed to fetch exercises</Text>;
   }
-
+  console.log(data);
   const exercises = data?.pages.flatMap((page) => page.exercises) ?? [];
 
   return (
@@ -88,7 +110,7 @@ export default function ExercisesScreen() {
         }}
       />
 
-      <FlatList
+      {/* <FlatList
         data={exercises}
         contentContainerStyle={{ gap: 5 }}
         style={{ padding: 10 }}
@@ -97,7 +119,7 @@ export default function ExercisesScreen() {
         onEndReachedThreshold={1}
         onEndReached={loadMore}
         contentInsetAdjustmentBehavior="automatic"
-      />
+      /> */}
 
       <StatusBar style="auto" />
     </View>
