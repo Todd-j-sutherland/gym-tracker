@@ -27,8 +27,8 @@ type QueryData = {
 };
 
 const exercisesQuery = gql`
-  query exercises($muscle: String, $name: String, $offset: Int) {
-    exercises(muscle: $muscle, name: $name, offset: $offset) {
+  query exercises($muscle: String, $name: String, $limit: Int) {
+    exercises(muscle: $muscle, name: $name, limit: $limit) {
       name
       muscle
       equipment
@@ -45,7 +45,7 @@ export default function ExercisesScreen() {
       queryKey: ["exercises", debouncedSearchTerm],
       queryFn: ({ pageParam }) =>
         client.request(exercisesQuery, {
-          offset: pageParam,
+          limit: pageParam,
           name: debouncedSearchTerm,
         }),
       initialPageParam: 0,
