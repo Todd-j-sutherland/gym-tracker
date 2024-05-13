@@ -27,12 +27,12 @@ const ProgressGraph = ({ sets = [] }) => {
     <View style={styles.container}>
       <Text>Progress Graph</Text>
 
-      <LineGraph
+      {/* <LineGraph
         points={points}
         animated={false}
         color="#4484B2"
         style={styles.graph}
-      />
+      /> */}
     </View>
   );
 };

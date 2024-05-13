@@ -8,8 +8,8 @@ import SetListItem from "./SetListItem";
 import ProgressGraph from "./ProgressGraph";
 
 const setsQuery = gql`
-  query sets($exercise: String!, $username: String!) {
-    sets(exercise: $exercise, username: $username) {
+  query sets($exercise: String!) {
+    sets(exercise: $exercise) {
       documents {
         _id
         exercise
@@ -41,16 +41,15 @@ interface SetsListProps {
 const SetsList: FC<SetsListProps> = ({ ListHeaderComponent, exerciseName }) => {
   const { username } = useAuth();
   console.log("this is the :" + username);
-  const { data, isLoading } = useQuery<SetsData>({
+  const { data, isLoading, error } = useQuery<SetsData>({
     queryKey: ["sets", exerciseName],
-    queryFn: () =>
-      graphqlClient.request(setsQuery, { exercise: exerciseName, username }),
+    queryFn: () => graphqlClient.request(setsQuery, { exercise: exerciseName }),
   });
 
   if (isLoading) {
     return <ActivityIndicator />;
   }
-
+  console.log("this is the data:" + data?.sets.documents[0]);
   const renderListHeaderComponent = () => (
     <>
       <ListHeaderComponent />

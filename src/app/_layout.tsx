@@ -12,10 +12,6 @@ export default function RootLayout() {
       <AuthContextProvider>
         <QueryClientProvider client={client}>
           <Stack>
-            {/* <Stack.Screen
-              name="(workout)/index"
-              options={{ title: "Exercises", headerShown: false }}
-            /> */}
             <Stack.Screen
               name="(drawer)"
               options={{ headerTitle: "", title: "", headerShown: false }}

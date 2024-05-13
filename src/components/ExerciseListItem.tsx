@@ -4,6 +4,7 @@ import { Link } from "expo-router";
 
 type ExerciseListItemProps = {
   item: {
+    _id: string;
     name: string;
     muscle: string;
     equipment: string;
@@ -12,7 +13,7 @@ type ExerciseListItemProps = {
 
 const ExerciseListItem: FC<ExerciseListItemProps> = ({ item }) => {
   return (
-    <Link href={`/${item.name}`} asChild>
+    <Link href={`/${item._id}`} asChild>
       <Pressable style={styles.exerciseContainer}>
         <Text style={styles.exerciseName}>{item.name}</Text>
 

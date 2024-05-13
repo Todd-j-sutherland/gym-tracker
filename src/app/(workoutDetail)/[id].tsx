@@ -2,35 +2,54 @@ import { View, Text, StyleSheet, ActivityIndicator } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { useState, FC } from "react";
 import { Stack } from "expo-router";
-import { gql } from "graphql-request";
+import { GraphQLClient, gql } from "graphql-request";
 import { useQuery } from "@tanstack/react-query";
-import { ExerciseData, ExerciseQueryVariables } from "../../modals";
+// import { ExerciseData, ExerciseQueryVariables } from "../../modals";
 
 import graphqlClient from "../../graphqlClient";
 import NewSetInput from "../../components/NewSetInput";
 import SetsList from "../../components/SetsList";
 
+type Exercise = {
+  _id: string;
+  name: string;
+  equipment: string;
+};
+
+type ExerciseQueryVariables = {
+  _id: string;
+};
+
+type CustomWorkoutsResponse = {
+  workout: {
+    documents: Exercise[];
+  };
+};
+
 const exerciseQuery = gql`
-  query exercises($name: String) {
-    exercises(name: $name) {
-      name
-      muscle
-      instructions
-      equipment
+  query workout($_id: ID!) {
+    workout(_id: $_id) {
+      documents {
+        _id
+        name
+        equipment
+      }
     }
   }
 `;
 
-type ExerciseDetailsScreenProps = {};
+export const ExerciseDetailsScreen: React.FC = () => {
+  const { id } = useLocalSearchParams<{ id: string }>();
+  console.log("id", id);
 
-export const ExerciseDetailsScreen: FC<ExerciseDetailsScreenProps> = () => {
-  const { name } = useLocalSearchParams<{ name: string }>();
-  const { data, isLoading, error } = useQuery<ExerciseData, Error>({
-    queryKey: ["exercises", name ?? ""],
+  const { data, isLoading, error } = useQuery<CustomWorkoutsResponse, Error>({
+    queryKey: ["workout", id ?? ""],
     queryFn: () =>
-      graphqlClient.request<ExerciseData, ExerciseQueryVariables>(
+      graphqlClient.request<CustomWorkoutsResponse, ExerciseQueryVariables>(
         exerciseQuery,
-        { name: name ?? "" }
+        {
+          _id: id ?? "",
+        }
       ),
   });
 
@@ -45,8 +64,8 @@ export const ExerciseDetailsScreen: FC<ExerciseDetailsScreenProps> = () => {
     return <Text>Failed to fetch data</Text>;
   }
 
-  const exercise = data?.exercises[0];
-
+  // const exercise = data?.exercises[0];
+  const exercise = data?.workout.documents[0];
   if (!exercise) {
     return <Text>Exercise not found</Text>;
   }
@@ -63,8 +82,10 @@ export const ExerciseDetailsScreen: FC<ExerciseDetailsScreenProps> = () => {
               <Text style={styles.exerciseName}>{exercise.name}</Text>
 
               <Text style={styles.exerciseSubtitle}>
-                <Text style={styles.subValue}>{exercise.muscle}</Text> |{" "}
-                <Text style={styles.subValue}>{exercise.equipment}</Text>
+                <Text style={styles.subValue}>
+                  {exercise?.muscle ?? "empty muscle"}
+                </Text>{" "}
+                | <Text style={styles.subValue}>{exercise.equipment}</Text>
               </Text>
             </View>
 
@@ -73,7 +94,7 @@ export const ExerciseDetailsScreen: FC<ExerciseDetailsScreenProps> = () => {
                 style={styles.instructions}
                 numberOfLines={isInstructionExpanded ? 0 : 3}
               >
-                {exercise.instructions}
+                {exercise?.instructions ?? "No instructions"}
               </Text>
               <Text
                 onPress={() => setIsInstructionExpanded(!isInstructionExpanded)}

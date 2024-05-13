@@ -26,25 +26,37 @@ import { useDebounce } from "@uidotdev/usehooks";
 //   exercises: Exercise[];
 // };
 
-type DocumentsEntrySets2 = {
-  id: String;
-  _id: String;
-  equipment: String;
-  isWeighted: String;
-  name: String;
-  repsGoal: String;
-  weight: String;
+// type DocumentsEntrySets2 = {
+//   id: String;
+//   _id: String;
+//   equipment: String;
+//   isWeighted: String;
+//   name: String;
+//   repsGoal: String;
+//   weight: String;
+// };
+
+// type DocumentsSets2 = {
+//   documents: DocumentsEntrySets2[];
+// };
+
+type Exercise = {
+  _id: string;
+  name: string;
+  equipment: string;
 };
 
-type DocumentsSets2 = {
-  documents: DocumentsEntrySets2[];
+type CustomWorkoutsResponse = {
+  customWorkouts: {
+    documents: Exercise[];
+  };
 };
 
 const exercisesQuery = gql`
   query customWorkouts($limit: Int, $skip: Int, $name: String) {
     customWorkouts(limit: $limit, skip: $skip, name: $name) {
       documents {
-        id
+        _id
         name
         equipment
       }
@@ -57,9 +69,9 @@ export default function ExercisesScreen() {
   const debouncedSearchTerm = useDebounce(search.trim(), 1000);
 
   const { data, isLoading, error, fetchNextPage, isFetchingNextPage } =
-    useInfiniteQuery<DocumentsSets2, Error>({
+    useInfiniteQuery<CustomWorkoutsResponse, Error>({
       queryKey: ["customWorkouts", debouncedSearchTerm],
-      queryFn: ({ pageParam }) =>
+      queryFn: ({ pageParam = 0 }) =>
         client.request(exercisesQuery, {
           limit: 10,
           skip: pageParam,
@@ -67,8 +79,8 @@ export default function ExercisesScreen() {
         }),
       initialPageParam: 0,
       getNextPageParam: (lastPage, allPages) => {
-        if (lastPage.documents?.length === 10) {
-          return allPages?.length * 10;
+        if (lastPage.customWorkouts.documents.length === 10) {
+          return allPages.length * 10;
         }
         return undefined;
       },
@@ -77,11 +89,9 @@ export default function ExercisesScreen() {
   const { username } = useAuth();
 
   const loadMore = () => {
-    if (isFetchingNextPage) {
-      return;
+    if (!isFetchingNextPage) {
+      fetchNextPage();
     }
-
-    fetchNextPage();
   };
 
   if (!username) {
@@ -95,9 +105,10 @@ export default function ExercisesScreen() {
   if (error) {
     return <Text>Failed to fetch exercises</Text>;
   }
-  console.log(data);
-  const exercises = data?.pages.flatMap((page) => page.exercises) ?? [];
 
+  const exercises =
+    data?.pages.flatMap((page) => page.customWorkouts.documents) ?? [];
+  console.log(exercises);
   return (
     <View style={styles.container}>
       <Stack.Screen
@@ -110,16 +121,17 @@ export default function ExercisesScreen() {
         }}
       />
 
-      {/* <FlatList
+      <FlatList
         data={exercises}
         contentContainerStyle={{ gap: 5 }}
         style={{ padding: 10 }}
-        keyExtractor={(item, index) => item.name + index}
+        keyExtractor={(item) => item._id}
         renderItem={({ item }) => <ExerciseListItem item={item} />}
         onEndReachedThreshold={1}
         onEndReached={loadMore}
+        ListFooterComponent={isFetchingNextPage ? <ActivityIndicator /> : null}
         contentInsetAdjustmentBehavior="automatic"
-      /> */}
+      />
 
       <StatusBar style="auto" />
     </View>
