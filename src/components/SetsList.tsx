@@ -49,7 +49,7 @@ const SetsList: FC<SetsListProps> = ({ ListHeaderComponent, exerciseName }) => {
   if (isLoading) {
     return <ActivityIndicator />;
   }
-  console.log("this is the data:" + data?.sets.documents[0]);
+  console.log("this is the data:" + data?.sets.documents);
   const renderListHeaderComponent = () => (
     <>
       <ListHeaderComponent />

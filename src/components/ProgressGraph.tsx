@@ -22,17 +22,31 @@ const ProgressGraph = ({ sets = [] }) => {
     date: idToDate(set._id),
     value: set.reps * set.weight,
   }));
+  console.log("this is the points:" + JSON.stringify(points));
+
+  const staticDummyData = [
+    { date: new Date("2024-01-01"), value: 500 },
+    { date: new Date("2024-02-01"), value: 700 },
+    // { date: new Date("2024-03-01"), value: 900 },
+    // { date: new Date("2024-04-01"), value: 650 },
+    // { date: new Date("2024-05-01"), value: 800 },
+    // { date: new Date("2024-06-01"), value: 750 },
+    // { date: new Date("2024-07-01"), value: 950 },
+    // { date: new Date("2024-08-01"), value: 850 },
+    // { date: new Date("2024-09-01"), value: 1000 },
+    // { date: new Date("2024-10-01"), value: 1100 },
+  ];
 
   return (
     <View style={styles.container}>
       <Text>Progress Graph</Text>
 
-      {/* <LineGraph
-        points={points}
+      <LineGraph
+        points={staticDummyData}
         animated={false}
         color="#4484B2"
         style={styles.graph}
-      /> */}
+      />
     </View>
   );
 };
