@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { View, TextInput, Button, StyleSheet } from "react-native";
 import { useQuery } from "@tanstack/react-query";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { gql } from "graphql-request";
 import { Picker } from "@react-native-picker/picker";
 import graphqlClient from "../../../graphqlClient";
 import { useAuth } from "../../../providers/AuthContext";
-import { Redirect, Stack } from "expo-router";
+import { Redirect } from "expo-router";
 
 const customWorkoutQuery = gql`
   query sets2 {
@@ -44,12 +44,9 @@ type DocumentsEntrySets2 = {
   name: String;
   target: String;
 };
+
 type DocumentsSets2 = {
   documents: DocumentsEntrySets2[];
-};
-
-type DocumentsEntrySets2Query = {
-  bodyPart: String;
 };
 
 type NewSet = {
@@ -79,22 +76,11 @@ const CustomExerciseForm = () => {
   const { mutate, isError, isPending } = useMutation({
     mutationFn: (newSet: NewSet) =>
       graphqlClient.request(mutationDocument, { newSet }),
-    onSuccess: () => {
-      // queryClient.invalidateQueries({ queryKey: ["sets", exerciseName] });
-    },
+    onSuccess: () => {},
   });
-
-  // console.log("Data:", data);
-  // const { data, isLoading, error } = useQuery(["sets2"], async () => {
-  //   const response = await request(endpoint, customWorkoutQuery);
-  //   return response.sets2.documents;
-  // });
 
   useEffect(() => {
     if (data) {
-      console.log("Data:", data);
-      // const dataDocuments = data.documents as DocumentsSets2;
-
       const bodyParts: string[] = data.sets2.documents.map(
         (doc) => doc.bodyPart
       );

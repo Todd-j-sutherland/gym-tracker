@@ -1,10 +1,15 @@
-import { View, Text, StyleSheet, ActivityIndicator } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ActivityIndicator,
+  ScrollView,
+} from "react-native";
 import { useLocalSearchParams } from "expo-router";
-import { useState, FC } from "react";
+import { useState } from "react";
 import { Stack } from "expo-router";
-import { GraphQLClient, gql } from "graphql-request";
+import { gql } from "graphql-request";
 import { useQuery } from "@tanstack/react-query";
-// import { ExerciseData, ExerciseQueryVariables } from "../../modals";
 
 import graphqlClient from "../../graphqlClient";
 import NewSetInput from "../../components/NewSetInput";
@@ -64,14 +69,13 @@ export const ExerciseDetailsScreen: React.FC = () => {
     return <Text>Failed to fetch data</Text>;
   }
 
-  // const exercise = data?.exercises[0];
   const exercise = data?.workout.documents[0];
   if (!exercise) {
     return <Text>Exercise not found</Text>;
   }
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       <Stack.Screen options={{ title: exercise.name }} />
 
       <SetsList
@@ -108,7 +112,7 @@ export const ExerciseDetailsScreen: React.FC = () => {
           </View>
         )}
       />
-    </View>
+    </ScrollView>
   );
 };
 

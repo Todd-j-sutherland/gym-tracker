@@ -14,31 +14,6 @@ import { Redirect, Stack } from "expo-router";
 import { useAuth } from "../../providers/AuthContext";
 import { useState } from "react";
 import { useDebounce } from "@uidotdev/usehooks";
-// import { Exercise } from "../../modals";
-
-// type Page = {
-//   exercises: Exercise[];
-// };
-
-// type QueryData = {
-//   pageParams: number[];
-//   pages: Page[];
-//   exercises: Exercise[];
-// };
-
-// type DocumentsEntrySets2 = {
-//   id: String;
-//   _id: String;
-//   equipment: String;
-//   isWeighted: String;
-//   name: String;
-//   repsGoal: String;
-//   weight: String;
-// };
-
-// type DocumentsSets2 = {
-//   documents: DocumentsEntrySets2[];
-// };
 
 type Exercise = {
   _id: string;

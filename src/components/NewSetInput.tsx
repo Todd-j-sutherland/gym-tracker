@@ -36,7 +36,7 @@ const NewSetInput: FC<NewSetInputProps> = ({ exerciseName }) => {
   const { username } = useAuth();
   const queryClient = useQueryClient();
 
-  const { mutate, error, isError, isPending } = useMutation({
+  const { mutate, isError, isPending } = useMutation({
     mutationFn: (newSet: NewSet) =>
       graphqlClient.request(mutationDocument, { newSet }),
     onSuccess: () => {

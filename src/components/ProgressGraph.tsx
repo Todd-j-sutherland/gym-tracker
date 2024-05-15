@@ -1,6 +1,12 @@
-import { View, Text, StyleSheet } from "react-native";
-import { FC } from "react";
-import { LineGraph } from "react-native-graph";
+import React, { useEffect, useState } from "react";
+import { View, Text, StyleSheet, Dimensions, ScrollView } from "react-native";
+import {
+  VictoryChart,
+  VictoryScatter,
+  VictoryTheme,
+  VictoryTooltip,
+  VictoryAxis,
+} from "victory";
 
 type Set = {
   _id: string;
@@ -9,44 +15,67 @@ type Set = {
 };
 
 type ProgressGraphProps = {
-  sets: Set[];
+  sets?: Set[];
 };
+
+const monthNames = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
 
 const idToDate = (id: string) => {
   const timestamp = parseInt(id.slice(0, 8), 16) * 1000;
-  return new Date(timestamp);
+  const date = new Date(timestamp);
+  return monthNames[date.getMonth()];
 };
 
-const ProgressGraph = ({ sets = [] }) => {
-  const points = sets.map((set) => ({
-    date: idToDate(set._id),
-    value: set.reps * set.weight,
-  }));
-  console.log("this is the points:" + JSON.stringify(points));
+const ProgressGraph: React.FC<ProgressGraphProps> = ({ sets = [] }) => {
+  const [dataPoints, setDataPoints] = useState([]);
 
-  const staticDummyData = [
-    { date: new Date("2024-01-01"), value: 500 },
-    { date: new Date("2024-02-01"), value: 700 },
-    // { date: new Date("2024-03-01"), value: 900 },
-    // { date: new Date("2024-04-01"), value: 650 },
-    // { date: new Date("2024-05-01"), value: 800 },
-    // { date: new Date("2024-06-01"), value: 750 },
-    // { date: new Date("2024-07-01"), value: 950 },
-    // { date: new Date("2024-08-01"), value: 850 },
-    // { date: new Date("2024-09-01"), value: 1000 },
-    // { date: new Date("2024-10-01"), value: 1100 },
-  ];
+  useEffect(() => {
+    const newDataPoints = sets.map((set) => {
+      const month = idToDate(set._id);
+      const value = set.reps * set.weight;
+      return { x: month, y: value, label: `${value}` };
+    });
+
+    setDataPoints(newDataPoints);
+  }, [sets]);
 
   return (
     <View style={styles.container}>
-      <Text>Progress Graph</Text>
-
-      <LineGraph
-        points={staticDummyData}
-        animated={false}
-        color="#4484B2"
-        style={styles.graph}
-      />
+      <Text style={styles.title}>Progress Graph</Text>
+      <VictoryChart
+        theme={VictoryTheme.material}
+        domainPadding={20}
+        width={Dimensions.get("window").width}
+      >
+        <VictoryAxis
+          tickValues={monthNames}
+          style={{ tickLabels: { angle: -45, fontSize: 8, padding: 15 } }}
+        />
+        <VictoryScatter
+          data={dataPoints}
+          size={5}
+          style={{
+            data: {
+              fill: ({ datum }) => (datum.y > 500 ? "#c43a31" : "#00a3de"),
+            },
+          }}
+          labels={({ datum }) => `${datum.x}: ${datum.y}`}
+          labelComponent={<VictoryTooltip dy={0} centerOffset={{ x: 25 }} />}
+        />
+      </VictoryChart>
     </View>
   );
 };
@@ -58,9 +87,10 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     gap: 5,
   },
-  graph: {
-    width: "100%",
-    height: 200,
+  title: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 5,
   },
 });
 
