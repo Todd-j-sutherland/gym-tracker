@@ -1,15 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { View, TextInput, Button, StyleSheet } from "react-native";
-import { useQuery } from "@tanstack/react-query";
-import { useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { gql } from "graphql-request";
 import { Picker } from "@react-native-picker/picker";
 import graphqlClient from "../../../graphqlClient";
 import { useAuth } from "../../../providers/AuthContext";
 import { Redirect } from "expo-router";
 
-const customWorkoutQuery = gql`
-  query sets2 {
+const GET_CUSTOM_WORKOUTS = gql`
+  query GetCustomWorkouts {
     sets2 {
       documents {
         id
@@ -23,10 +22,10 @@ const customWorkoutQuery = gql`
   }
 `;
 
-const mutationDocument = gql`
-  mutation MyMutation($newSet: NewSet!) {
+const INSERT_CUSTOM_WORKOUT = gql`
+  mutation InsertCustomWorkout($newWorkout: NewWorkoutInput!) {
     insertSet(
-      document: $newSet
+      document: $newWorkout
       dataSource: "Cluster0"
       database: "workouts"
       collection: "customWorkouts"
@@ -36,20 +35,20 @@ const mutationDocument = gql`
   }
 `;
 
-type DocumentsEntrySets2 = {
-  id: String;
-  gifUrl: String;
-  bodyPart: String;
-  equipment: String;
-  name: String;
-  target: String;
+type WorkoutDocument = {
+  id: string;
+  gifUrl: string;
+  bodyPart: string;
+  equipment: string;
+  name: string;
+  target: string;
 };
 
-type DocumentsSets2 = {
-  documents: DocumentsEntrySets2[];
+type WorkoutData = {
+  documents: WorkoutDocument[];
 };
 
-type NewSet = {
+type NewWorkoutInput = {
   name: string;
   equipment: string;
   weight: number;
@@ -68,14 +67,14 @@ const CustomExerciseForm = () => {
   const [sets, setSets] = useState("");
   const { username } = useAuth();
 
-  const { data, isLoading, error } = useQuery<DocumentsSets2, Error>({
+  const { data, isLoading, error } = useQuery<WorkoutData, Error>({
     queryKey: ["sets2"],
-    queryFn: () => graphqlClient.request<DocumentsSets2>(customWorkoutQuery),
+    queryFn: () => graphqlClient.request<WorkoutData>(GET_CUSTOM_WORKOUTS),
   });
 
   const { mutate, isError, isPending } = useMutation({
-    mutationFn: (newSet: NewSet) =>
-      graphqlClient.request(mutationDocument, { newSet }),
+    mutationFn: (newWorkout: NewWorkoutInput) =>
+      graphqlClient.request(INSERT_CUSTOM_WORKOUT, { newWorkout }),
     onSuccess: () => {},
   });
 
@@ -99,19 +98,19 @@ const CustomExerciseForm = () => {
       isWeighted,
       weight,
       repsGoal,
-    });
-    const name = workoutName;
-    const equipment = category;
-    const newSet = {
-      name,
-      equipment,
-      isWeighted,
-      weight,
-      repsGoal,
       sets,
+    });
+
+    const newWorkout = {
+      name: workoutName,
+      equipment: category,
+      isWeighted,
+      weight: Number(weight),
+      reps: Number(repsGoal),
+      sets: Number(sets),
     };
 
-    mutate(newSet);
+    mutate(newWorkout);
   };
 
   if (!username) {
@@ -170,7 +169,7 @@ const CustomExerciseForm = () => {
 
       <TextInput
         style={styles.input}
-        placeholder="sets"
+        placeholder="Sets"
         value={sets}
         keyboardType="numeric"
         onChangeText={setSets}
